@@ -11,7 +11,9 @@ import { Target, Users, Clock } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-// Amharic Translations
+// ============================================================================
+// TRANSLATIONS (Amharic)
+// ============================================================================
 const t = {
   trending: "ታዋቂ",
   funded: "ተሟላ",
@@ -22,11 +24,16 @@ const t = {
   birr: "ብር",
 };
 
-// Format currency in Ethiopian Birr
+// ============================================================================
+// HELPERS
+// ============================================================================
 const formatBirr = (amount: number): string => {
   return `${amount.toLocaleString("en-US")} ${t.birr}`;
 };
 
+// ============================================================================
+// TYPES
+// ============================================================================
 interface CampaignWithCreator {
   _id: Id<"campaigns">;
   title: string;
@@ -52,8 +59,12 @@ interface CampaignCardProps {
   campaign: CampaignWithCreator;
 }
 
+// ============================================================================
+// COMPONENT
+// ============================================================================
 export function CampaignCard({ campaign }: CampaignCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [daysLeft, setDaysLeft] = useState(0);
 
   // Fetch real stats from the API
   const stats = useQuery(api.pledges.getCampaignStats, {
@@ -61,8 +72,6 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
   });
 
   // Calculate days left
-  const [daysLeft, setDaysLeft] = useState(0);
-
   useEffect(() => {
     const calculateDaysLeft = () => {
       const now = Date.now();
@@ -83,16 +92,19 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
 
   const backersCount = stats?.totalBackers ?? 0;
   const totalAmount = stats?.totalAmount ?? campaign.currentAmount;
+  const isFullyFunded = stats?.isFullyFunded ?? false;
+  const hasEnded = stats?.hasEnded ?? false;
 
   return (
-    <Link href={`/campaigns/${campaign.slug}`}>
+    // Changed from slug to _id
+    <Link href={`/campaigns/${campaign._id}`}>
       <div
-        className="group h-full flex flex-col"
+        className="group flex h-full flex-col"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image Section */}
-        <div className="relative aspect-[4/3] w-full bg-muted rounded-lg overflow-hidden">
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-muted">
           {campaign.imageUrl ? (
             <Image
               src={campaign.imageUrl}
@@ -105,7 +117,7 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
               <Target className="h-10 w-10 text-muted-foreground/30" />
             </div>
           )}
@@ -116,26 +128,26 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
           {/* Category Badge */}
           <Badge
             variant="secondary"
-            className="absolute top-2.5 left-2.5 bg-background/90 backdrop-blur-sm text-xs font-medium border-0"
+            className="absolute left-2.5 top-2.5 border-0 bg-background/90 text-xs font-medium backdrop-blur-sm"
           >
             {campaign.category}
           </Badge>
 
           {/* Status Badges */}
           <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
-            {stats?.isFullyFunded && (
-              <Badge className="bg-green-600 hover:bg-green-600 text-white border-0 text-xs">
+            {isFullyFunded && (
+              <Badge className="border-0 bg-green-600 text-xs text-white hover:bg-green-600">
                 {t.funded}
               </Badge>
             )}
-            {!stats?.isFullyFunded && percentageFunded > 75 && (
-              <Badge className="bg-orange-600 hover:bg-orange-600 text-white border-0 text-xs">
+            {!isFullyFunded && percentageFunded > 75 && (
+              <Badge className="border-0 bg-orange-600 text-xs text-white hover:bg-orange-600">
                 {t.trending}
               </Badge>
             )}
-            {!stats?.isFullyFunded && percentageFunded <= 75 && <div />}
+            {!isFullyFunded && percentageFunded <= 75 && <div />}
 
-            {!stats?.hasEnded && daysLeft <= 7 && (
+            {!hasEnded && daysLeft <= 7 && daysLeft > 0 && (
               <Badge variant="destructive" className="text-xs">
                 {daysLeft} {t.daysLeft}
               </Badge>
@@ -144,25 +156,25 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
         </div>
 
         {/* Content Section */}
-        <div className="flex-1 flex flex-col pt-4">
+        <div className="flex flex-1 flex-col pt-4">
           {/* Title */}
-          <h3 className="font-bold text-lg line-clamp-2 mb-1.5 group-hover:text-primary transition-colors leading-tight">
+          <h3 className="mb-1.5 line-clamp-2 text-lg font-bold leading-tight transition-colors group-hover:text-primary">
             {campaign.title}
           </h3>
 
-          {/* Description - 1 line */}
-          <p className="text-sm text-muted-foreground line-clamp-1 mb-3">
+          {/* Description */}
+          <p className="mb-3 line-clamp-1 text-sm text-muted-foreground">
             {campaign.shortDescription}
           </p>
 
           {/* Progress Section */}
-          <div className="space-y-2 mt-auto">
+          <div className="mt-auto space-y-2">
             <Progress
               value={Math.min(percentageFunded, 100)}
               className="h-1.5"
             />
 
-            {/* Amount - Single Line */}
+            {/* Amount */}
             <div className="flex items-center justify-between">
               <p className="text-sm">
                 <span className="font-bold">{formatBirr(totalAmount)}</span>
@@ -177,14 +189,14 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
             </div>
           </div>
 
-          {/* Stats with dot separator */}
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-3">
+          {/* Stats */}
+          <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
             <Users className="h-3 w-3" />
             <span className="font-medium text-foreground">{backersCount}</span>
             <span>{t.backers}</span>
             <span className="mx-1.5">•</span>
             <Clock className="h-3 w-3" />
-            {stats?.hasEnded ? (
+            {hasEnded ? (
               <span>{t.ended}</span>
             ) : (
               <>

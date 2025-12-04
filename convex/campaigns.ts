@@ -201,15 +201,25 @@ export const getCampaignById = query({
   args: { id: v.id("campaigns") },
   handler: async (ctx, args) => {
     const campaign = await ctx.db.get(args.id);
+
     if (!campaign) {
       return null;
     }
 
-    const creator = await ctx.db.get(campaign.creatorId);
+    // Get creator info
+    const creator = campaign.creatorId
+      ? await ctx.db.get(campaign.creatorId)
+      : null;
 
     return {
       ...campaign,
-      creator,
+      creator: creator
+        ? {
+            _id: creator._id,
+            name: creator.name,
+            image: creator.image,
+          }
+        : null,
     };
   },
 });

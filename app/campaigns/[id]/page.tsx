@@ -2,6 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CampaignStats } from "@/components/campaigns/CampaignStats";
@@ -72,33 +73,38 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Helper function to extract YouTube video ID
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
 function getYouTubeVideoId(url: string): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
   return match && match[2].length === 11 ? match[2] : null;
 }
 
-// Helper function to extract Vimeo video ID
 function getVimeoVideoId(url: string): string | null {
   const regExp = /vimeo\.com\/(?:video\/)?(\d+)/;
   const match = url.match(regExp);
   return match ? match[1] : null;
 }
 
-// Loading component
+// ============================================================================
+// LOADING SKELETON
+// ============================================================================
+
 function CampaignDetailSkeleton() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6">
-          <Skeleton className="h-4 w-64 mb-6" />
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <Skeleton className="mb-6 h-4 w-64" />
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
             <div className="lg:col-span-3">
               <Skeleton className="aspect-video w-full rounded-2xl" />
             </div>
-            <div className="lg:col-span-2 space-y-4">
+            <div className="space-y-4 lg:col-span-2">
               <Skeleton className="h-8 w-3/4" />
               <Skeleton className="h-6 w-full" />
               <Skeleton className="h-4 w-full" />
@@ -118,7 +124,10 @@ function CampaignDetailSkeleton() {
   );
 }
 
-// Video Player Component
+// ============================================================================
+// VIDEO PLAYER
+// ============================================================================
+
 function VideoPlayer({ videoUrl }: { videoUrl: string }) {
   const youtubeId = getYouTubeVideoId(videoUrl);
   const vimeoId = getVimeoVideoId(videoUrl);
@@ -130,7 +139,7 @@ function VideoPlayer({ videoUrl }: { videoUrl: string }) {
         title="Campaign Video"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 h-full w-full"
       />
     );
   }
@@ -142,36 +151,38 @@ function VideoPlayer({ videoUrl }: { videoUrl: string }) {
         title="Campaign Video"
         allow="autoplay; fullscreen; picture-in-picture"
         allowFullScreen
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 h-full w-full"
       />
     );
   }
 
-  // Fallback for direct video URLs
   return (
     <video
       src={videoUrl}
       controls
-      className="absolute inset-0 w-full h-full object-cover"
+      className="absolute inset-0 h-full w-full object-cover"
     >
       Your browser does not support the video tag.
     </video>
   );
 }
 
-// Share Dialog Component
+// ============================================================================
+// SHARE DIALOG
+// ============================================================================
+
 function ShareDialog({
   campaign,
   isOpen,
   onClose,
 }: {
-  campaign: { title: string; shortDescription: string; slug: string };
+  campaign: { title: string; shortDescription: string; _id: string };
   isOpen: boolean;
   onClose: () => void;
 }) {
   const shareUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/campaigns/${campaign.slug}`
+      ? `${window.location.origin}/campaigns/${campaign._id}`
       : "";
 
   const copyToClipboard = async () => {
@@ -224,7 +235,7 @@ function ShareDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="flex-1 p-3 bg-muted rounded-lg text-sm truncate">
+            <div className="flex-1 truncate rounded-lg bg-muted p-3 text-sm">
               {shareUrl}
             </div>
             <Button size="icon" variant="outline" onClick={copyToClipboard}>
@@ -241,7 +252,7 @@ function ShareDialog({
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
-                    "flex flex-col items-center gap-2 p-4 rounded-lg border transition-all",
+                    "flex flex-col items-center gap-2 rounded-lg border p-4 transition-all",
                     link.color
                   )}
                 >
@@ -257,7 +268,10 @@ function ShareDialog({
   );
 }
 
-// Campaign Status Badge
+// ============================================================================
+// STATUS BADGE
+// ============================================================================
+
 function CampaignStatusBadge({
   status,
   daysLeft,
@@ -331,7 +345,10 @@ function CampaignStatusBadge({
   );
 }
 
-// Reward Tier Component
+// ============================================================================
+// REWARD TIER
+// ============================================================================
+
 function RewardTier({
   amount,
   title,
@@ -350,33 +367,33 @@ function RewardTier({
   return (
     <Card
       className={cn(
-        "relative overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5",
+        "relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg",
         isPopular && "ring-2 ring-primary"
       )}
     >
       {isPopular && (
-        <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-3 py-1 text-xs font-medium rounded-bl-lg">
+        <div className="absolute right-0 top-0 rounded-bl-lg bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
           Most Popular
         </div>
       )}
       <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
+        <div className="mb-4 flex items-start justify-between">
           <div>
             <p className="text-2xl font-bold">
               {formatCurrency(amount, currency)}
             </p>
-            <h4 className="font-semibold text-lg mt-1">{title}</h4>
+            <h4 className="mt-1 text-lg font-semibold">{title}</h4>
           </div>
           <Gift className="h-6 w-6 text-primary/60" />
         </div>
-        <p className="text-sm text-muted-foreground mb-4">{description}</p>
+        <p className="mb-4 text-sm text-muted-foreground">{description}</p>
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
             {backers} backers
           </span>
           <Button size="sm">
             Select
-            <ArrowRight className="h-4 w-4 ml-1" />
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       </CardContent>
@@ -384,20 +401,28 @@ function RewardTier({
   );
 }
 
+// ============================================================================
+// MAIN PAGE COMPONENT
+// ============================================================================
+
 export default function CampaignDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ id: string }>;
 }) {
-  const { slug } = use(params);
+  const { id } = use(params);
   const { isAuthenticated, user } = useAuth();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
 
+  // Convert string id to Convex Id type
+  const campaignId = id as Id<"campaigns">;
+
+  // Query campaign by ID instead of slug
   const campaign = useQuery(
-    api.campaigns.getCampaignBySlug,
-    slug ? { slug } : "skip"
+    api.campaigns.getCampaignById,
+    id ? { id: campaignId } : "skip"
   );
 
   const stats = useQuery(
@@ -517,53 +542,51 @@ export default function CampaignDetailPage({
     },
   ];
 
-  // Determine what media to show - video takes priority
   const hasVideo = !!campaign.videoUrl;
   const hasImage = !!campaign.imageUrl;
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 pt-6 pb-4">
+        <div className="container mx-auto px-4 pb-4 pt-6">
           {/* Breadcrumb */}
           <nav
-            className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4 overflow-x-auto scrollbar-hide"
+            className="scrollbar-hide mb-4 flex items-center gap-1.5 overflow-x-auto text-sm text-muted-foreground"
             aria-label="Breadcrumb"
           >
             <Link
               href="/"
-              className="hover:text-foreground transition-colors flex-shrink-0"
+              className="flex-shrink-0 transition-colors hover:text-foreground"
             >
               Home
             </Link>
             <ChevronRight className="h-4 w-4 flex-shrink-0" />
             <Link
               href="/campaigns"
-              className="hover:text-foreground transition-colors flex-shrink-0"
+              className="flex-shrink-0 transition-colors hover:text-foreground"
             >
               Campaigns
             </Link>
             <ChevronRight className="h-4 w-4 flex-shrink-0" />
             <Link
               href={`/campaigns?category=${encodeURIComponent(campaign.category)}`}
-              className="hover:text-foreground transition-colors flex-shrink-0"
+              className="flex-shrink-0 transition-colors hover:text-foreground"
             >
               {campaign.category}
             </Link>
             <ChevronRight className="h-4 w-4 flex-shrink-0" />
-            <span className="text-foreground font-medium truncate max-w-[200px]">
+            <span className="max-w-[200px] truncate font-medium text-foreground">
               {campaign.title}
             </span>
           </nav>
 
           {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-8">
             {/* Media Section */}
             <div className="lg:col-span-3">
-              <div className="relative aspect-video w-full bg-muted rounded-xl overflow-hidden shadow-xl ring-1 ring-black/5 dark:ring-white/5">
-                {/* Video takes priority over image */}
+              <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-muted shadow-xl ring-1 ring-black/5 dark:ring-white/5">
                 {hasVideo ? (
                   <VideoPlayer videoUrl={campaign.videoUrl!} />
                 ) : hasImage ? (
@@ -576,40 +599,37 @@ export default function CampaignDetailPage({
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 50vw"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20">
-                    <div className="text-center space-y-2">
-                      <div className="h-16 w-16 mx-auto rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 via-purple-500/20 to-pink-500/20">
+                    <div className="space-y-2 text-center">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm">
                         <Target className="h-8 w-8 text-muted-foreground/60" />
                       </div>
-                      <p className="text-sm text-muted-foreground font-medium">
+                      <p className="text-sm font-medium text-muted-foreground">
                         Campaign Media
                       </p>
                     </div>
                   </div>
                 )}
 
-                {/* Category Badge - only show if not video or has image fallback */}
                 {!hasVideo && (
-                  <Badge className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm border-0 shadow-lg">
+                  <Badge className="absolute left-3 top-3 border-0 bg-background/90 shadow-lg backdrop-blur-sm">
                     {campaign.category}
                   </Badge>
                 )}
 
-                {/* Trending Badge */}
                 {!hasVideo && percentageFunded > 80 && !isFullyFunded && (
-                  <Badge className="absolute top-3 right-3 bg-orange-500/90 backdrop-blur-sm border-0 shadow-lg gap-1.5">
+                  <Badge className="absolute right-3 top-3 gap-1.5 border-0 bg-orange-500/90 shadow-lg backdrop-blur-sm">
                     <TrendingUp className="h-3.5 w-3.5" />
                     Trending
                   </Badge>
                 )}
               </div>
 
-              {/* Category Badge below video */}
               {hasVideo && (
-                <div className="flex items-center gap-2 mt-3">
+                <div className="mt-3 flex items-center gap-2">
                   <Badge variant="secondary">{campaign.category}</Badge>
                   {percentageFunded > 80 && !isFullyFunded && (
-                    <Badge className="bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/30 gap-1.5">
+                    <Badge className="gap-1.5 border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-400">
                       <TrendingUp className="h-3.5 w-3.5" />
                       Trending
                     </Badge>
@@ -618,7 +638,7 @@ export default function CampaignDetailPage({
               )}
 
               {/* Mobile Actions */}
-              <div className="flex items-center justify-between mt-3 lg:hidden">
+              <div className="mt-3 flex items-center justify-between lg:hidden">
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -626,7 +646,7 @@ export default function CampaignDetailPage({
                     onClick={handleFavorite}
                     className={cn(
                       "h-9 w-9",
-                      isFavorited && "text-red-500 border-red-500/50"
+                      isFavorited && "border-red-500/50 text-red-500"
                     )}
                   >
                     <Heart
@@ -651,9 +671,9 @@ export default function CampaignDetailPage({
             </div>
 
             {/* Campaign Info */}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="space-y-4 lg:col-span-2">
               {/* Desktop Status & Actions */}
-              <div className="hidden lg:flex items-center justify-between">
+              <div className="hidden items-center justify-between lg:flex">
                 <CampaignStatusBadge
                   status={campaign.status}
                   daysLeft={daysLeft}
@@ -706,7 +726,7 @@ export default function CampaignDetailPage({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={handleReport}>
-                        <Flag className="h-4 w-4 mr-2" />
+                        <Flag className="mr-2 h-4 w-4" />
                         Report
                       </DropdownMenuItem>
                       {isCreator && (
@@ -728,10 +748,10 @@ export default function CampaignDetailPage({
 
               {/* Title */}
               <div>
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight leading-tight">
+                <h1 className="text-xl font-bold leading-tight tracking-tight md:text-2xl lg:text-3xl">
                   {campaign.title}
                 </h1>
-                <p className="text-muted-foreground mt-1.5 text-sm md:text-base line-clamp-2">
+                <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground md:text-base">
                   {campaign.shortDescription}
                 </p>
               </div>
@@ -743,12 +763,12 @@ export default function CampaignDetailPage({
                     src={campaign.creator?.image}
                     alt={campaign.creator?.name}
                   />
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-primary-foreground text-xs font-semibold">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-xs font-semibold text-primary-foreground">
                     {getInitials(campaign.creator?.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
                     {campaign.creator?.name || "Anonymous"}
                   </p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -765,13 +785,13 @@ export default function CampaignDetailPage({
                 <div className="space-y-1.5">
                   <div className="flex items-end justify-between">
                     <div>
-                      <span className="text-2xl md:text-3xl font-bold">
+                      <span className="text-2xl font-bold md:text-3xl">
                         {formatCurrency(
                           stats?.totalAmount ?? campaign.currentAmount,
                           campaign.currency
                         )}
                       </span>
-                      <span className="text-muted-foreground text-sm ml-1.5">
+                      <span className="ml-1.5 text-sm text-muted-foreground">
                         of{" "}
                         {formatCurrency(campaign.goalAmount, campaign.currency)}
                       </span>
@@ -788,15 +808,15 @@ export default function CampaignDetailPage({
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-2.5 rounded-lg bg-muted/50">
-                    <div className="flex items-center justify-center gap-1 mb-0.5">
+                  <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                    <div className="mb-0.5 flex items-center justify-center gap-1">
                       <Users className="h-3.5 w-3.5 text-primary" />
                       <span className="text-lg font-bold">{backersCount}</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground">Backers</p>
                   </div>
-                  <div className="text-center p-2.5 rounded-lg bg-muted/50">
-                    <div className="flex items-center justify-center gap-1 mb-0.5">
+                  <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                    <div className="mb-0.5 flex items-center justify-center gap-1">
                       <Clock className="h-3.5 w-3.5 text-orange-600" />
                       <span className="text-lg font-bold">
                         {hasEnded ? "—" : daysLeft}
@@ -806,8 +826,8 @@ export default function CampaignDetailPage({
                       {hasEnded ? "Ended" : "Days Left"}
                     </p>
                   </div>
-                  <div className="text-center p-2.5 rounded-lg bg-muted/50">
-                    <div className="flex items-center justify-center gap-1 mb-0.5">
+                  <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                    <div className="mb-0.5 flex items-center justify-center gap-1">
                       <TrendingUp className="h-3.5 w-3.5 text-green-600" />
                       <span className="text-lg font-bold">
                         {percentageFunded}%
@@ -836,7 +856,7 @@ export default function CampaignDetailPage({
                         <Clock className="h-4 w-4 text-muted-foreground" />
                       )}
                       <div>
-                        <p className="font-medium text-sm">
+                        <p className="text-sm font-medium">
                           {isFullyFunded
                             ? "Successfully Funded!"
                             : "Campaign Ended"}
@@ -864,7 +884,7 @@ export default function CampaignDetailPage({
 
         {/* Tabs Section */}
         <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
               <Tabs
@@ -872,47 +892,47 @@ export default function CampaignDetailPage({
                 onValueChange={setActiveTab}
                 className="w-full"
               >
-                <TabsList className="w-full justify-start h-auto p-1 bg-muted/50 rounded-lg grid grid-cols-4 gap-1">
+                <TabsList className="grid h-auto w-full grid-cols-4 gap-1 rounded-lg bg-muted/50 p-1">
                   <TabsTrigger
                     value="description"
-                    className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2 rounded-md text-sm font-medium"
+                    className="rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
                   >
-                    <Info className="h-4 w-4 mr-1.5 hidden sm:inline" />
+                    <Info className="mr-1.5 hidden h-4 w-4 sm:inline" />
                     Story
                   </TabsTrigger>
                   <TabsTrigger
                     value="rewards"
-                    className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2 rounded-md text-sm font-medium"
+                    className="rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
                   >
-                    <Gift className="h-4 w-4 mr-1.5 hidden sm:inline" />
+                    <Gift className="mr-1.5 hidden h-4 w-4 sm:inline" />
                     Rewards
                   </TabsTrigger>
                   <TabsTrigger
                     value="backers"
-                    className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2 rounded-md text-sm font-medium"
+                    className="rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
                   >
-                    <Users className="h-4 w-4 mr-1.5 hidden sm:inline" />
+                    <Users className="mr-1.5 hidden h-4 w-4 sm:inline" />
                     Backers
                   </TabsTrigger>
                   <TabsTrigger
                     value="comments"
-                    className="data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-2 rounded-md text-sm font-medium"
+                    className="rounded-md px-3 py-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm"
                   >
-                    <MessageCircle className="h-4 w-4 mr-1.5 hidden sm:inline" />
+                    <MessageCircle className="mr-1.5 hidden h-4 w-4 sm:inline" />
                     Comments
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="description" className="space-y-6 mt-6">
+                <TabsContent value="description" className="mt-6 space-y-6">
                   <Card>
                     <CardHeader className="pb-4">
                       <CardTitle className="flex items-center gap-2 text-lg">
-                        <div className="h-1 w-8 bg-gradient-to-r from-primary to-purple-600 rounded-full" />
+                        <div className="h-1 w-8 rounded-full bg-gradient-to-r from-primary to-purple-600" />
                         About This Project
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <div className="prose prose-sm max-w-none dark:prose-invert">
                         <div className="whitespace-pre-wrap leading-relaxed text-foreground/90">
                           {campaign.description}
                         </div>
@@ -928,9 +948,9 @@ export default function CampaignDetailPage({
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex items-center gap-3 flex-1">
-                          <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                      <div className="flex flex-col gap-4 sm:flex-row">
+                        <div className="flex flex-1 items-center gap-3">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-500/10">
                             <CheckCircle2 className="h-5 w-5 text-green-600" />
                           </div>
                           <div>
@@ -942,10 +962,10 @@ export default function CampaignDetailPage({
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 flex-1">
+                        <div className="flex flex-1 items-center gap-3">
                           <div
                             className={cn(
-                              "h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                              "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg",
                               hasEnded ? "bg-muted" : "bg-orange-500/10"
                             )}
                           >
@@ -985,7 +1005,7 @@ export default function CampaignDetailPage({
                             src={campaign.creator?.image}
                             alt={campaign.creator?.name}
                           />
-                          <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-primary-foreground font-semibold">
+                          <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 font-semibold text-primary-foreground">
                             {getInitials(campaign.creator?.name)}
                           </AvatarFallback>
                         </Avatar>
@@ -993,12 +1013,12 @@ export default function CampaignDetailPage({
                           <h4 className="font-semibold">
                             {campaign.creator?.name || "Anonymous"}
                           </h4>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                          <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                             <CheckCircle2 className="h-3 w-3 text-green-600" />
                             <span>Verified Creator</span>
                           </div>
                           <Button variant="outline" size="sm" className="mt-3">
-                            <Bell className="h-3 w-3 mr-1.5" />
+                            <Bell className="mr-1.5 h-3 w-3" />
                             Follow
                           </Button>
                         </div>
@@ -1007,7 +1027,7 @@ export default function CampaignDetailPage({
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="rewards" className="space-y-4 mt-6">
+                <TabsContent value="rewards" className="mt-6 space-y-4">
                   {rewards.map((reward, index) => (
                     <RewardTier
                       key={index}
@@ -1018,9 +1038,9 @@ export default function CampaignDetailPage({
 
                   <Card className="border-dashed">
                     <CardContent className="p-6 text-center">
-                      <Gift className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <h4 className="font-semibold mb-1">Custom Amount</h4>
-                      <p className="text-xs text-muted-foreground mb-3">
+                      <Gift className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                      <h4 className="mb-1 font-semibold">Custom Amount</h4>
+                      <p className="mb-3 text-xs text-muted-foreground">
                         Back with any amount
                       </p>
                       <Button variant="outline" size="sm">
@@ -1068,22 +1088,22 @@ export default function CampaignDetailPage({
                 />
               )}
 
-              {/* Sign in CTA for unauthenticated users */}
+              {/* Sign in CTA */}
               {!isAuthenticated &&
                 campaign.status === "active" &&
                 !hasEnded && (
-                  <Card className="bg-gradient-to-br from-primary/5 to-purple-500/5 border-primary/20">
+                  <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
                     <CardContent className="p-4 text-center">
-                      <Heart className="h-8 w-8 text-primary mx-auto mb-2" />
-                      <h4 className="font-semibold mb-1">
+                      <Heart className="mx-auto mb-2 h-8 w-8 text-primary" />
+                      <h4 className="mb-1 font-semibold">
                         Want to back this project?
                       </h4>
-                      <p className="text-xs text-muted-foreground mb-3">
+                      <p className="mb-3 text-xs text-muted-foreground">
                         Sign in to pledge and support this campaign
                       </p>
                       <Button asChild className="w-full">
                         <Link
-                          href={`/sign-in?redirect=/campaigns/${campaign.slug}`}
+                          href={`/sign-in?redirect=/campaigns/${campaign._id}`}
                         >
                           Sign in to Back
                         </Link>
@@ -1092,9 +1112,9 @@ export default function CampaignDetailPage({
                   </Card>
                 )}
 
-              <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
+              <Card className="border-green-500/20 bg-gradient-to-br from-green-500/5 to-green-500/10">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-sm">
                     <ShieldCheck className="h-4 w-4 text-green-600" />
                     Trust & Safety
                   </CardTitle>
@@ -1115,7 +1135,7 @@ export default function CampaignDetailPage({
                     },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-2 text-xs">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-green-600" />
                       <div>
                         <p className="font-medium">{item.title}</p>
                         <p className="text-muted-foreground">{item.desc}</p>
@@ -1136,7 +1156,7 @@ export default function CampaignDetailPage({
                     className="w-full"
                     size="sm"
                   >
-                    <Share2 className="h-4 w-4 mr-2" />
+                    <Share2 className="mr-2 h-4 w-4" />
                     Share Campaign
                   </Button>
                 </CardContent>
@@ -1149,7 +1169,7 @@ export default function CampaignDetailPage({
                   onClick={handleReport}
                   className="text-xs text-muted-foreground hover:text-foreground"
                 >
-                  <Flag className="h-3 w-3 mr-1.5" />
+                  <Flag className="mr-1.5 h-3 w-3" />
                   Report
                 </Button>
               </div>
