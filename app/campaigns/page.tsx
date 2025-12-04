@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CampaignList } from "@/components/campaigns/CampaignList";
@@ -90,6 +91,9 @@ const t = {
   tryDifferentFilters: "የተለያዩ ማጣሪያዎችን ይሞክሩ",
   startCampaign: "ዘመቻ ይጀምሩ",
   projects: "ፕሮጀክቶች",
+
+  // Loading
+  loading: "በመጫን ላይ...",
 };
 
 // Category mapping
@@ -192,10 +196,8 @@ function SearchInput({ onSearch, initialValue = "" }: SearchInputProps) {
       case "Enter":
         e.preventDefault();
         if (selectedIndex >= 0 && displayedCampaigns[selectedIndex]) {
-          // Navigate to selected campaign
           window.location.href = `/campaigns/${displayedCampaigns[selectedIndex].slug}`;
         } else if (inputValue.trim()) {
-          // Search with query
           onSearch(inputValue.trim());
           setIsOpen(false);
         }
@@ -277,13 +279,11 @@ function SearchInput({ onSearch, initialValue = "" }: SearchInputProps) {
           {/* Results Dropdown */}
           <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-xl border-2 bg-background shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
             {isLoading ? (
-              // Loading State
               <div className="flex items-center gap-3 p-4">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 <span className="text-muted-foreground">{t.searching}</span>
               </div>
             ) : hasQuery && !hasResults ? (
-              // No Results
               <div className="p-6 text-center">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                   <Search className="h-5 w-5 text-muted-foreground" />
@@ -294,7 +294,6 @@ function SearchInput({ onSearch, initialValue = "" }: SearchInputProps) {
                 </p>
               </div>
             ) : (
-              // Results List
               <div className="max-h-[400px] overflow-y-auto">
                 {/* Header */}
                 <div className="border-b bg-muted/50 px-4 py-2">
@@ -409,7 +408,7 @@ function SearchInput({ onSearch, initialValue = "" }: SearchInputProps) {
             )}
 
             {/* Keyboard Hints */}
-            <div className="hidden border-t bg-muted/30 px-4 py-2 md:flex items-center justify-between text-xs text-muted-foreground">
+            <div className="hidden items-center justify-between border-t bg-muted/30 px-4 py-2 text-xs text-muted-foreground md:flex">
               <div className="flex items-center gap-4">
                 <span>
                   <kbd className="rounded bg-muted px-1.5 py-0.5">↑</kbd>{" "}
@@ -757,14 +756,56 @@ function EmptyState({ onClearFilters }: { onClearFilters: () => void }) {
 }
 
 // ============================================================================
-// MAIN PAGE COMPONENT
+// LOADING FALLBACK COMPONENT
 // ============================================================================
-export default function CampaignsPage() {
+function CampaignsPageLoading() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1">
+        {/* Hero Skeleton */}
+        <section className="relative overflow-hidden border-b bg-gradient-to-b from-primary/[0.03] to-transparent">
+          <div className="container mx-auto px-4 py-16 md:py-24">
+            <div className="mx-auto max-w-4xl space-y-8 text-center">
+              <Skeleton className="mx-auto h-10 w-40" />
+              <Skeleton className="mx-auto h-14 w-80" />
+              <Skeleton className="mx-auto h-6 w-96" />
+              <Skeleton className="mx-auto h-14 w-full max-w-2xl rounded-xl" />
+              <div className="flex justify-center gap-2 pt-4">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-9 w-24 rounded-full" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Filter Bar Skeleton */}
+        <section className="py-8 md:py-12">
+          <div className="container mx-auto px-4">
+            <Skeleton className="mb-8 h-20 w-full rounded-lg" />
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <Skeleton key={i} className="h-64 w-full rounded-lg" />
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+// ============================================================================
+// CAMPAIGNS PAGE CONTENT (Uses useSearchParams)
+// ============================================================================
+function CampaignsPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Filter states
+  // Filter states - initialized from URL params
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(
     searchParams.get("category") || undefined
   );
@@ -908,5 +949,16 @@ export default function CampaignsPage() {
 
       <Footer />
     </div>
+  );
+}
+
+// ============================================================================
+// MAIN PAGE COMPONENT - Wrapped in Suspense
+// ============================================================================
+export default function CampaignsPage() {
+  return (
+    <Suspense fallback={<CampaignsPageLoading />}>
+      <CampaignsPageContent />
+    </Suspense>
   );
 }
