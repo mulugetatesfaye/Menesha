@@ -121,68 +121,70 @@ function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-background">
       {/* Gradient Orbs */}
-      <div className="absolute -left-20 top-20 h-[500px] w-[500px] rounded-full bg-primary/15 blur-[150px]" />
-      <div className="absolute -right-20 bottom-20 h-[400px] w-[400px] rounded-full bg-primary/10 blur-[120px]" />
+      <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/20 blur-[100px]" />
+      <div className="absolute -right-40 top-20 h-96 w-96 rounded-full bg-primary/15 blur-[120px]" />
+      <div className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-primary/10 blur-[80px]" />
 
-      {/* Topographic Pattern */}
-      <svg
-        className="absolute inset-0 h-full w-full opacity-[0.15]"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <pattern
-            id="topo-pattern"
-            x="0"
-            y="0"
-            width="100"
-            height="100"
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d="M0 50 Q 25 25, 50 50 T 100 50"
-              fill="none"
-              stroke="hsl(272 100% 61%)"
-              strokeWidth="0.5"
-            />
-            <path
-              d="M0 70 Q 25 45, 50 70 T 100 70"
-              fill="none"
-              stroke="hsl(272 100% 61%)"
-              strokeWidth="0.5"
-            />
-            <path
-              d="M0 30 Q 25 5, 50 30 T 100 30"
-              fill="none"
-              stroke="hsl(272 100% 61%)"
-              strokeWidth="0.5"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="20"
-              fill="none"
-              stroke="hsl(272 100% 61%)"
-              strokeWidth="0.3"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="35"
-              fill="none"
-              stroke="hsl(272 100% 61%)"
-              strokeWidth="0.3"
-            />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#topo-pattern)" />
-      </svg>
+      {/* Dot Grid Pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.4]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, hsl(272 100% 61% / 0.15) 1px, transparent 0)`,
+          backgroundSize: "32px 32px",
+        }}
+      />
 
-      {/* Gradient Fade */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/80 to-background" />
+      {/* Subtle Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
 
       {/* Content */}
       <div className="container relative mx-auto px-4 py-20 md:py-28 lg:py-36">
-        {/* ... content ... */}
+        <div className="mx-auto max-w-4xl text-center">
+          {/* Tagline Badge */}
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-primary backdrop-blur-sm">
+            <Sparkles className="h-4 w-4" />
+            <span>{t.heroTagline}</span>
+          </div>
+
+          {/* Main Title */}
+          <h1 className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            {t.heroTitle}
+            <br />
+            <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+              {t.heroTitleHighlight}
+            </span>
+          </h1>
+
+          {/* Description */}
+          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+            {t.heroDescription}
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Button
+              size="lg"
+              className="h-13 min-w-[200px] px-8 text-base font-medium shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30"
+              asChild
+            >
+              <Link href="/dashboard/campaigns/new">
+                <Rocket className="mr-2 h-5 w-5" />
+                {t.startCampaign}
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-13 min-w-[200px] px-8 text-base font-medium"
+              asChild
+            >
+              <Link href="/campaigns">
+                {t.exploreProjects}
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
       </div>
     </section>
   );
