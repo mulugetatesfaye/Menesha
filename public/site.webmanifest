@@ -1,0 +1,80 @@
+{
+  "name": "FundIt - Crowdfunding Platform",
+  "short_name": "FundIt",
+  "description": "Launch your creative project and make your vision a reality with crowdfunding",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "finance", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Home screen"
+    },
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Campaign",
+      "url": "/campaigns/create",
+      "description": "Create a new crowdfunding campaign",
+      "icons": [
+        {
+          "src": "/icon-shortcut-create.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Explore",
+      "url": "/campaigns",
+      "description": "Browse all campaigns",
+      "icons": [
+        {
+          "src": "/icon-shortcut-explore.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
