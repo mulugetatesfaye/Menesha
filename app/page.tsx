@@ -115,78 +115,29 @@ const t = {
 };
 
 // ============================================================================
-// LIVE STATS TICKER - Original Component
-// ============================================================================
-function LiveStatsTicker() {
-  const stats = useQuery(api.stats.getStats, {});
-
-  if (!stats) {
-    return (
-      <div className="flex items-center justify-center gap-6">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-28" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground md:gap-6">
-      {/* Active Campaigns */}
-      <div className="flex items-center gap-2">
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-        </span>
-        <span>
-          <span className="font-semibold text-foreground">
-            {stats.activeCampaigns}
-          </span>{" "}
-          {t.active}
-        </span>
-      </div>
-
-      <Separator orientation="vertical" className="hidden h-4 md:block" />
-
-      {/* Total Raised */}
-      <span>
-        <span className="font-semibold text-foreground">
-          {formatCurrency(stats.totalRaised, "ETB")}
-        </span>{" "}
-        {t.raised}
-      </span>
-
-      <Separator orientation="vertical" className="hidden h-4 md:block" />
-
-      {/* Funded Count */}
-      <span>
-        <span className="font-semibold text-foreground">
-          {stats.fundedCount}
-        </span>{" "}
-        {t.funded}
-      </span>
-    </div>
-  );
-}
-
-// ============================================================================
 // HERO SECTION - Enterprise Level with Original Content
 // ============================================================================
 function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/[0.08] via-transparent to-transparent" />
+    <section className="relative overflow-hidden bg-background">
+      {/* Gradient Orbs */}
+      <div className="absolute -left-40 -top-40 h-80 w-80 rounded-full bg-primary/20 blur-[100px]" />
+      <div className="absolute -right-40 top-20 h-96 w-96 rounded-full bg-primary/15 blur-[120px]" />
+      <div className="absolute -bottom-20 left-1/3 h-72 w-72 rounded-full bg-primary/10 blur-[80px]" />
 
-      {/* Grid Pattern (subtle) */}
+      {/* Dot Grid Pattern */}
       <div
-        className="absolute inset-0 opacity-[0.015]"
+        className="absolute inset-0 opacity-[0.4]"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, hsl(272 100% 61% / 0.15) 1px, transparent 0)`,
+          backgroundSize: "32px 32px",
         }}
       />
 
+      {/* Subtle Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
+
+      {/* Content */}
       <div className="container relative mx-auto px-4 py-20 md:py-28 lg:py-36">
         <div className="mx-auto max-w-4xl text-center">
           {/* Tagline Badge */}

@@ -23,11 +23,11 @@ const fontMono = JetBrains_Mono({
 // Comprehensive metadata for SEO
 export const metadata: Metadata = {
   title: {
-    default: "FundIt - Crowdfunding Platform",
-    template: "%s | FundIt",
+    default: "Meneshaye - Crowdfunding Platform",
+    template: "%s | Meneshaye",
   },
   description:
-    "Launch your dreams with FundIt. The modern crowdfunding platform that connects creators with backers worldwide. Start your campaign today.",
+    "Launch your dreams with Meneshaye. The modern crowdfunding platform that connects creators with backers worldwide. Start your campaign today.",
   keywords: [
     "crowdfunding",
     "fundraising",
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
     "backers",
     "investment",
   ],
-  authors: [{ name: "FundIt Team" }],
-  creator: "FundIt",
-  publisher: "FundIt Inc.",
+  authors: [{ name: "Meneshaye Team" }],
+  creator: "Meneshaye",
+  publisher: "Meneshaye Inc.",
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ),
@@ -51,26 +51,26 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "/",
-    title: "FundIt - Crowdfunding Platform",
+    title: "Meneshaye - Crowdfunding Platform",
     description:
-      "Launch your dreams with FundIt. The modern crowdfunding platform that connects creators with backers worldwide.",
-    siteName: "FundIt",
+      "Launch your dreams with Meneshaye. The modern crowdfunding platform that connects creators with backers worldwide.",
+    siteName: "Meneshaye",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "FundIt - Crowdfunding Platform",
+        alt: "Meneshaye - Crowdfunding Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FundIt - Crowdfunding Platform",
+    title: "Meneshaye - Crowdfunding Platform",
     description:
-      "Launch your dreams with FundIt. The modern crowdfunding platform that connects creators with backers worldwide.",
+      "Launch your dreams with Meneshaye. The modern crowdfunding platform that connects creators with backers worldwide.",
     images: ["/og-image.png"],
-    creator: "@fundit",
+    creator: "@Meneshaye",
   },
   robots: {
     index: true,
