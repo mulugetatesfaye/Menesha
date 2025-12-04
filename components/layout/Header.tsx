@@ -65,10 +65,10 @@ function HeaderAuth() {
     return (
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
-          <Link href="/auth/signin">{t.signIn}</Link>
+          <Link href="/sign-in">{t.signIn}</Link>
         </Button>
         <Button size="sm" asChild>
-          <Link href="/auth/signup">{t.signUp}</Link>
+          <Link href="/sign-up">{t.signUp}</Link>
         </Button>
       </div>
     );
